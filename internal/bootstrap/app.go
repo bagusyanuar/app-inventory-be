@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/bagusyanuar/app-inventory-be/internal/config"
+	"github.com/bagusyanuar/app-inventory-be/internal/di"
+	"github.com/bagusyanuar/app-inventory-be/internal/http"
 )
 
 func initialize() *config.AppConfig {
@@ -30,10 +32,10 @@ func Start() {
 	cfg := initialize()
 
 	// initialize dependency injection
-	// diRepository := di.InitializeDIRepository(cfg)
-	// diService := di.InitializeDIService(cfg, diRepository)
-	// diHandler := di.InitializeDIHandler(cfg, diService)
-	// http.NewRouter(cfg, diHandler)
+	repositoryDI := di.MakeDIRepository(cfg)
+	serviceDI := di.MakeDIService(cfg, repositoryDI)
+	handlerDI := di.MakeDIHandler(cfg, serviceDI)
+	http.NewRouter(cfg, handlerDI)
 	envPort := cfg.Viper.GetString("APP_PORT")
 	port := fmt.Sprintf(":%s", envPort)
 	server := cfg.App
