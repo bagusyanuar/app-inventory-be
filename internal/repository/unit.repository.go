@@ -2,12 +2,15 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/bagusyanuar/app-inventory-be/internal/domain/entity"
 	"github.com/bagusyanuar/app-inventory-be/internal/schema"
+	"github.com/bagusyanuar/app-inventory-be/pkg/exception"
 	"github.com/bagusyanuar/app-inventory-be/pkg/pagination"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type (
@@ -15,6 +18,8 @@ type (
 		FindAll(ctx context.Context, queryParams *schema.UnitQuery) ([]entity.Unit, *pagination.PaginationMeta, error)
 		FindByID(ctx context.Context, id string) (*entity.Unit, error)
 		Create(ctx context.Context, unit *entity.Unit) (*entity.Unit, error)
+		Update(ctx context.Context, id string, entry map[string]any) (*entity.Unit, error)
+		Delete(ctx context.Context, id string) error
 	}
 
 	unitRepositoryImpl struct {
@@ -71,7 +76,55 @@ func (u *unitRepositoryImpl) FindAll(ctx context.Context, queryParams *schema.Un
 
 // FindByID implements UnitRepository.
 func (u *unitRepositoryImpl) FindByID(ctx context.Context, id string) (*entity.Unit, error) {
-	panic("unimplemented")
+	var data *entity.Unit
+	tx := u.DB.WithContext(ctx)
+	if err := tx.Where("id = ?", id).
+		First(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, exception.ErrRecordNotFound
+		}
+		return nil, err
+	}
+	return data, nil
+}
+
+// Update implements UnitRepository.
+func (u *unitRepositoryImpl) Update(ctx context.Context, id string, entry map[string]any) (*entity.Unit, error) {
+	var data *entity.Unit
+	tx := u.DB.WithContext(ctx)
+	if err := tx.Where("id = ?", id).
+		First(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, exception.ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	if err := tx.Model(&data).
+		Omit(clause.Associations).Where("id = ?", id).
+		Updates(&entry).Error; err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+// Delete implements UnitRepository.
+func (u *unitRepositoryImpl) Delete(ctx context.Context, id string) error {
+	var data *entity.Unit
+	tx := u.DB.WithContext(ctx)
+	if err := tx.Where("id = ?", id).
+		First(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return exception.ErrRecordNotFound
+		}
+		return err
+	}
+
+	if err := tx.Omit(clause.Associations).
+		Delete(&data).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u *unitRepositoryImpl) baseQuery(tx *gorm.DB, queryParams *schema.UnitQuery) *gorm.DB {

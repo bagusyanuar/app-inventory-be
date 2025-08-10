@@ -16,6 +16,8 @@ type (
 		FindAll(ctx context.Context, queryParams *schema.UnitQuery) (*[]dto.UnitDTO, *pagination.PaginationMeta, error)
 		FindByID(ctx context.Context, id string) (*dto.UnitDTO, error)
 		Create(ctx context.Context, schema *schema.UnitSchema) (*dto.UnitDTO, error)
+		Update(ctx context.Context, id string, schema *schema.UnitSchema) (*dto.UnitDTO, error)
+		Delete(ctx context.Context, id string) error
 	}
 
 	unitServiceImpl struct {
@@ -51,10 +53,43 @@ func (u *unitServiceImpl) Create(ctx context.Context, schema *schema.UnitSchema)
 
 // FindAll implements UnitService.
 func (u *unitServiceImpl) FindAll(ctx context.Context, queryParams *schema.UnitQuery) (*[]dto.UnitDTO, *pagination.PaginationMeta, error) {
-	panic("unimplemented")
+	units, pagination, err := u.UnitRepository.FindAll(ctx, queryParams)
+	if err != nil {
+		return &[]dto.UnitDTO{}, nil, err
+	}
+	data := dto.ToUnits(units)
+	return &data, pagination, nil
 }
 
 // FindByID implements UnitService.
 func (u *unitServiceImpl) FindByID(ctx context.Context, id string) (*dto.UnitDTO, error) {
-	panic("unimplemented")
+	unit, err := u.UnitRepository.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	data := dto.ToUnit(unit)
+	return data, nil
+}
+
+// Update implements UnitService.
+func (u *unitServiceImpl) Update(ctx context.Context, id string, schema *schema.UnitSchema) (*dto.UnitDTO, error) {
+	entry := map[string]interface{}{
+		"name": schema.Name,
+	}
+
+	unit, err := u.UnitRepository.Update(ctx, id, entry)
+	if err != nil {
+		return nil, err
+	}
+	data := dto.ToUnit(unit)
+	return data, nil
+}
+
+// Delete implements UnitService.
+func (u *unitServiceImpl) Delete(ctx context.Context, id string) error {
+	err := u.UnitRepository.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

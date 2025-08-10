@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/bagusyanuar/app-inventory-be/internal/config"
 	"github.com/bagusyanuar/app-inventory-be/internal/di"
+	"github.com/bagusyanuar/app-inventory-be/internal/http/middleware"
 )
 
 func NewRouter(cfg *config.AppConfig, handler *di.HandlerDI) {
@@ -11,6 +12,11 @@ func NewRouter(cfg *config.AppConfig, handler *di.HandlerDI) {
 	auth := app.Group("/auth")
 	auth.Post("/login", handler.Auth.Login)
 
-	unit := app.Group("/unit")
+	jwtMiddleware := middleware.VerifyJWT(cfg)
+	unit := app.Group("/unit", jwtMiddleware)
 	unit.Post("/", handler.Unit.Create)
+	unit.Get("/", handler.Unit.FindAll)
+	unit.Get("/:id", handler.Unit.FindByID)
+	unit.Put("/:id", handler.Unit.Update)
+	unit.Delete("/:id", handler.Unit.Delete)
 }
