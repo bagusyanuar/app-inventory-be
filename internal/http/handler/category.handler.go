@@ -12,23 +12,23 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type UnitHandler struct {
-	UnitService service.UnitService
-	Config      *config.AppConfig
+type CategoryHandler struct {
+	CategoryService service.CategoryService
+	Config          *config.AppConfig
 }
 
-func NewUnitHandler(
-	unitService service.UnitService,
+func NewCategoryHandler(
+	categoryService service.CategoryService,
 	cfg *config.AppConfig,
-) *UnitHandler {
-	return &UnitHandler{
-		UnitService: unitService,
-		Config:      cfg,
+) *CategoryHandler {
+	return &CategoryHandler{
+		CategoryService: categoryService,
+		Config:          cfg,
 	}
 }
 
-func (c *UnitHandler) Create(ctx *fiber.Ctx) error {
-	request := new(schema.UnitSchema)
+func (c *CategoryHandler) Create(ctx *fiber.Ctx) error {
+	request := new(schema.CategorySchema)
 	if err := ctx.BodyParser(request); err != nil {
 		return response.MakeAPIError(ctx, fiber.StatusBadRequest, err)
 	}
@@ -38,19 +38,19 @@ func (c *UnitHandler) Create(ctx *fiber.Ctx) error {
 		return response.MakeAPIErrorValidation(ctx, messages)
 	}
 
-	_, err = c.UnitService.Create(ctx.UserContext(), request)
+	_, err = c.CategoryService.Create(ctx.UserContext(), request)
 	if err != nil {
 		return response.MakeAPIError(ctx, fiber.StatusInternalServerError, err)
 	}
 
 	return response.MakeAPIResponse(ctx, response.APIResponse[any]{
-		Message: "successfully create new unit",
+		Message: "successfully create new category",
 		Code:    fiber.StatusCreated,
 	})
 }
 
-func (c *UnitHandler) FindAll(ctx *fiber.Ctx) error {
-	queryParams := new(schema.UnitQuery)
+func (c *CategoryHandler) FindAll(ctx *fiber.Ctx) error {
+	queryParams := new(schema.CategoryQuery)
 	if err := ctx.QueryParser(queryParams); err != nil {
 		return response.MakeAPIError(ctx, fiber.StatusBadRequest, err)
 	}
@@ -60,22 +60,22 @@ func (c *UnitHandler) FindAll(ctx *fiber.Ctx) error {
 		return response.MakeAPIErrorValidation(ctx, messages)
 	}
 
-	data, pagination, err := c.UnitService.FindAll(ctx.UserContext(), queryParams)
+	data, pagination, err := c.CategoryService.FindAll(ctx.UserContext(), queryParams)
 	if err != nil {
 		return response.MakeAPIError(ctx, fiber.StatusInternalServerError, err)
 	}
 	return response.MakeAPIResponse(ctx, response.APIResponse[any]{
-		Message: "successfully get units",
+		Message: "successfully get categories",
 		Code:    fiber.StatusOK,
 		Data:    data,
 		Meta:    pagination,
 	})
 }
 
-func (c *UnitHandler) FindByID(ctx *fiber.Ctx) error {
+func (c *CategoryHandler) FindByID(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 
-	data, err := c.UnitService.FindByID(ctx.UserContext(), id)
+	data, err := c.CategoryService.FindByID(ctx.UserContext(), id)
 	if err != nil {
 		if errors.Is(err, exception.ErrRecordNotFound) {
 			return response.MakeAPIError(ctx, fiber.StatusNotFound, err)
@@ -83,16 +83,16 @@ func (c *UnitHandler) FindByID(ctx *fiber.Ctx) error {
 		return response.MakeAPIError(ctx, fiber.StatusInternalServerError, err)
 	}
 	return response.MakeAPIResponse(ctx, response.APIResponse[any]{
-		Message: "successfully get unit",
+		Message: "successfully get category",
 		Code:    fiber.StatusOK,
 		Data:    data,
 	})
 }
 
-func (c *UnitHandler) Update(ctx *fiber.Ctx) error {
+func (c *CategoryHandler) Update(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 
-	request := new(schema.UnitSchema)
+	request := new(schema.CategorySchema)
 	if err := ctx.BodyParser(request); err != nil {
 		return response.MakeAPIError(ctx, fiber.StatusBadRequest, err)
 	}
@@ -102,7 +102,7 @@ func (c *UnitHandler) Update(ctx *fiber.Ctx) error {
 		return response.MakeAPIErrorValidation(ctx, messages)
 	}
 
-	_, err = c.UnitService.Update(ctx.UserContext(), id, request)
+	_, err = c.CategoryService.Update(ctx.UserContext(), id, request)
 	if err != nil {
 		if errors.Is(err, exception.ErrRecordNotFound) {
 			return response.MakeAPIError(ctx, fiber.StatusNotFound, err)
@@ -110,15 +110,15 @@ func (c *UnitHandler) Update(ctx *fiber.Ctx) error {
 		return response.MakeAPIError(ctx, fiber.StatusInternalServerError, err)
 	}
 	return response.MakeAPIResponse(ctx, response.APIResponse[any]{
-		Message: "successfully update unit",
+		Message: "successfully update category",
 		Code:    fiber.StatusOK,
 	})
 }
 
-func (c *UnitHandler) Delete(ctx *fiber.Ctx) error {
+func (c *CategoryHandler) Delete(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 
-	err := c.UnitService.Delete(ctx.UserContext(), id)
+	err := c.CategoryService.Delete(ctx.UserContext(), id)
 	if err != nil {
 		if errors.Is(err, exception.ErrRecordNotFound) {
 			return response.MakeAPIError(ctx, fiber.StatusNotFound, err)
@@ -126,7 +126,7 @@ func (c *UnitHandler) Delete(ctx *fiber.Ctx) error {
 		return response.MakeAPIError(ctx, fiber.StatusInternalServerError, err)
 	}
 	return response.MakeAPIResponse(ctx, response.APIResponse[any]{
-		Message: "successfully delete unit",
+		Message: "successfully delete category",
 		Code:    fiber.StatusOK,
 	})
 }

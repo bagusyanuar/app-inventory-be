@@ -73,7 +73,7 @@ func (u *unitServiceImpl) FindByID(ctx context.Context, id string) (*dto.UnitDTO
 
 // Update implements UnitService.
 func (u *unitServiceImpl) Update(ctx context.Context, id string, schema *schema.UnitSchema) (*dto.UnitDTO, error) {
-	entry := map[string]interface{}{
+	entry := map[string]any{
 		"name": schema.Name,
 	}
 

@@ -6,13 +6,15 @@ import (
 )
 
 type ServiceDI struct {
-	Auth service.AuthService
-	Unit service.UnitService
+	Auth     service.AuthService
+	Unit     service.UnitService
+	Category service.CategoryService
 }
 
 func MakeDIService(cfg *config.AppConfig, repositoryDI *RepositoryDI) *ServiceDI {
 	return &ServiceDI{
-		Auth: service.NewAuthService(repositoryDI.User, cfg),
-		Unit: service.NewUnitService(repositoryDI.Unit, cfg),
+		Auth:     service.NewAuthService(repositoryDI.User, cfg),
+		Unit:     service.NewUnitService(repositoryDI.Unit, cfg),
+		Category: service.NewCategoryService(repositoryDI.Category, cfg),
 	}
 }

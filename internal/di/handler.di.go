@@ -6,13 +6,15 @@ import (
 )
 
 type HandlerDI struct {
-	Auth *handler.AuthHandler
-	Unit *handler.UnitHandler
+	Auth     *handler.AuthHandler
+	Unit     *handler.UnitHandler
+	Category *handler.CategoryHandler
 }
 
 func MakeDIHandler(cfg *config.AppConfig, serviceDI *ServiceDI) *HandlerDI {
 	return &HandlerDI{
-		Auth: handler.NewAuthHandler(serviceDI.Auth, cfg),
-		Unit: handler.NewUnitHandler(serviceDI.Unit, cfg),
+		Auth:     handler.NewAuthHandler(serviceDI.Auth, cfg),
+		Unit:     handler.NewUnitHandler(serviceDI.Unit, cfg),
+		Category: handler.NewCategoryHandler(serviceDI.Category, cfg),
 	}
 }

@@ -6,13 +6,15 @@ import (
 )
 
 type RepositoryDI struct {
-	User repository.UserRepository
-	Unit repository.UnitRepository
+	User     repository.UserRepository
+	Unit     repository.UnitRepository
+	Category repository.CategoryRepository
 }
 
 func MakeDIRepository(cfg *config.AppConfig) *RepositoryDI {
 	return &RepositoryDI{
-		User: repository.NewUserRepository(cfg.DB),
-		Unit: repository.NewUnitRepository(cfg.DB),
+		User:     repository.NewUserRepository(cfg.DB),
+		Unit:     repository.NewUnitRepository(cfg.DB),
+		Category: repository.NewCategoryRepository(cfg.DB),
 	}
 }
