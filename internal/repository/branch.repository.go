@@ -138,9 +138,25 @@ func (b *branchRepositoryImpl) Update(ctx context.Context, id string, entry map[
 
 		// 4. update contatcs table
 
-		// if contacts, ok := entry["contacts"]; ok {
+		if v, ok := entry["contacts"]; ok {
+			contacts := make([]entity.BranchContact, 0)
 
-		// }
+			if contactsArr, ok := v.([]map[string]any); ok {
+				for _, c := range contactsArr {
+					contact := entity.BranchContact{
+						Type:  c["type"].(string),
+						Name:  c["name"].(*string),
+						Value: c["phone"].(string),
+					}
+					contacts = append(contacts, contact)
+				}
+				if err := tx.Model(&data).
+					Association("Contacts").
+					Replace(contacts); err != nil {
+					return err
+				}
+			}
+		}
 		return nil
 	})
 
